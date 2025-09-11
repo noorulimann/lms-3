@@ -1,0 +1,225 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+}
+
+model User {
+  id           String           @id @default(uuid())
+  email        String           @unique
+  name         String?
+  role         Role             @default(STUDENT)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  authId       String           @unique
+  onBoarded    Boolean          @default(false)
+  profilePic   String?
+  bio          String?
+  signature    String?
+  courses      Course[]
+  progress     progress[]
+  accesses     Access[]
+  requests     requests[]
+  categories   UserCategory[]
+  goals        UserGoal[]
+  purchases    purchases[]
+  mail         MailCredentials?
+  certificates Certificate[]
+
+  @@unique([id, authId])
+}
+
+model MailCredentials {
+  id        String   @id @default(uuid())
+  email     String
+  pass      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId])
+}
+
+model Goal {
+  id        String     @id @default(uuid())
+  title     String     @unique
+  users     UserGoal[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([id, title])
+}
+
+model Category {
+  id        String         @id @default(uuid())
+  title     String         @unique
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  users     UserCategory[]
+  courses   Course[]
+
+  @@unique([id, title])
+}
+
+model UserCategory {
+  userId     String
+  categoryId String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([userId, categoryId])
+}
+
+model UserGoal {
+  userId String
+  goalId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal   Goal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@id([userId, goalId])
+}
+
+model Course {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  thumbnail   String?
+  price       Float?
+  isPublished Boolean   @default(false)
+  isFree      Boolean   @default(false)
+  categoryid  String?
+  duration    Int       @default(5)
+  category    Category? @relation(fields: [categoryid], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  chapters     Chapter[]
+  accesses     Access[]
+  purchases    purchases[]
+  certificates Certificate[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum PurchaseStatusEnum {
+  COMPLETED
+  IN_PROGRESS
+  FAILED
+}
+
+model purchases {
+  id        String             @id @default(uuid())
+  status    PurchaseStatusEnum @default(IN_PROGRESS)
+  price     Float
+  orderId   String?
+  paymentId String?
+  receiptId String?
+  address   String?
+  name      String?
+  isFree    Boolean            @default(false)
+  courseId  String
+  course    Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+model Access {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, userId])
+}
+
+model Chapter {
+  id          String  @id @default(uuid())
+  title       String
+  content     String?
+  order       Int?
+  isFree      Boolean @default(false)
+  videoUrl    String?
+  isPublished Boolean @default(false)
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  attachments attachment[]
+  progress    progress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model attachment {
+  id   String @id @default(uuid())
+  name String
+  url  String
+  type String
+
+  chapterId String
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model progress {
+  id     String @id @default(uuid())
+  status Status @default(IN_PROGRESS)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  chapterId String
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, chapterId])
+}
+
+enum Status {
+  COMPLETED
+  IN_PROGRESS
+}
+
+model requests {
+  id        String   @id @default(uuid())
+  phone     String
+  email     String
+  message   String
+  userId    String
+  status    Status   @default(IN_PROGRESS)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Certificate {
+  id        String   @id @default(uuid())
+  title     String
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, userId])
+}
