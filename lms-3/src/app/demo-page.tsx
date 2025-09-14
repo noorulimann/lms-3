@@ -102,18 +102,16 @@ export default function Home() {
             </p>
             <div className="flex justify-center mt-8">
               <div className="z-10 flex h-24 items-center justify-center">
-                <Link href="/demo">
-                  <div
-                    className={cn(
-                      "group rounded-full border text-base text-white transition-all ease-in hover:cursor-pointer border-white/5 bg-neutral-900 hover:bg-neutral-800"
-                    )}
-                  >
-                    <AnimatedShinyText className="inline-flex items-center justify-center px-6 py-3 transition ease-out hover:duration-300 hover:text-neutral-400">
-                      <span>✨ Explore the Platform (Demo Mode)</span>
-                      <ArrowRightIcon className="ml-2 size-4 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-                    </AnimatedShinyText>
-                  </div>
-                </Link>
+                <div
+                  className={cn(
+                    "group rounded-full border text-base text-white transition-all ease-in hover:cursor-pointer border-white/5 bg-neutral-900 hover:bg-neutral-800"
+                  )}
+                >
+                  <AnimatedShinyText className="inline-flex items-center justify-center px-6 py-3 transition ease-out hover:duration-300 hover:text-neutral-400">
+                    <span>✨ Explore the Platform (Demo Mode)</span>
+                    <ArrowRightIcon className="ml-2 size-4 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+                  </AnimatedShinyText>
+                </div>
               </div>
             </div>
           </div>

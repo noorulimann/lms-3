@@ -53,41 +53,148 @@ export const courseAccess = async (courseId: string) => {
 };
 
 export const getCourses = async (word: string, page = 1, pageSize = 20) => {
-  const skip = (page - 1) * pageSize;
-  const courses = await prisma.course.findMany({
-    where: {
+  // For demo purposes, return mock courses data
+  const mockCourses = [
+    {
+      id: "1",
+      title: "Complete Web Development Bootcamp",
+      description: "Learn HTML, CSS, JavaScript, React, Node.js and more",
+      imageUrl: "/course.png",
+      price: 99.99,
       isPublished: true,
-      OR: [
-        { title: { contains: word } },
-        { description: { contains: word } },
-        { category: { title: { contains: word } } },
-        { user: { name: { contains: word } } },
+      categoryId: "1",
+      userId: "user1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      category: { id: "1", title: "Web Development", createdAt: new Date(), updatedAt: new Date() },
+      _count: { chapters: 15 },
+      chapters: [
+        { id: "ch1" }, { id: "ch2" }, { id: "ch3" }
       ],
+      user: {
+        id: "user1",
+        name: "John Doe",
+        email: "john@example.com",
+        profilePic: "/user.png",
+        authId: "auth1",
+        role: "TEACHER" as const,
+        onBoarded: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        bio: null,
+        signature: null
+      }
     },
-    include: {
-      _count: {
-        select: {
-          chapters: { where: { isPublished: true } },
-        },
-      },
-      chapters: {
-        select: { id: true },
-        where: { isPublished: true },
-        orderBy: { order: "asc" },
-      },
-      user: true,
+    {
+      id: "2", 
+      title: "Data Science with Python",
+      description: "Master data analysis, visualization, and machine learning",
+      imageUrl: "/course.png",
+      price: 129.99,
+      isPublished: true,
+      categoryId: "3",
+      userId: "user2",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      category: { id: "3", title: "Data Science", createdAt: new Date(), updatedAt: new Date() },
+      _count: { chapters: 12 },
+      chapters: [
+        { id: "ch4" }, { id: "ch5" }
+      ],
+      user: {
+        id: "user2",
+        name: "Jane Smith",
+        email: "jane@example.com", 
+        profilePic: "/user.png",
+        authId: "auth2",
+        role: "TEACHER" as const,
+        onBoarded: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        bio: null,
+        signature: null
+      }
     },
-    skip,
-    take: pageSize,
-  });
+    {
+      id: "3",
+      title: "Mobile App Development with React Native", 
+      description: "Build iOS and Android apps with React Native",
+      imageUrl: "/course.png",
+      price: 89.99,
+      isPublished: true,
+      categoryId: "2",
+      userId: "user3",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      category: { id: "2", title: "Mobile Development", createdAt: new Date(), updatedAt: new Date() },
+      _count: { chapters: 18 },
+      chapters: [
+        { id: "ch6" }, { id: "ch7" }, { id: "ch8" }
+      ],
+      user: {
+        id: "user3",
+        name: "Mike Johnson",
+        email: "mike@example.com",
+        profilePic: "/user.png", 
+        authId: "auth3",
+        role: "TEACHER" as const,
+        onBoarded: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        bio: null,
+        signature: null
+      }
+    }
+  ];
 
-  const finalCourses = courses.map((course) => ({
-    ...course,
-    chapters: course._count.chapters,
-    chapterId: course.chapters[0]?.id,
-  }));
+  // Filter courses based on search term
+  const filteredCourses = word 
+    ? mockCourses.filter(course => 
+        course.title.toLowerCase().includes(word.toLowerCase()) ||
+        course.description.toLowerCase().includes(word.toLowerCase()) ||
+        course.category.title.toLowerCase().includes(word.toLowerCase()) ||
+        course.user.name.toLowerCase().includes(word.toLowerCase())
+      )
+    : mockCourses;
 
-  return finalCourses;
+  return filteredCourses;
+
+  // Original database call commented out for demo
+  // const skip = (page - 1) * pageSize;
+  // const courses = await prisma.course.findMany({
+  //   where: {
+  //     isPublished: true,
+  //     OR: [
+  //       { title: { contains: word } },
+  //       { description: { contains: word } },
+  //       { category: { title: { contains: word } } },
+  //       { user: { name: { contains: word } } },
+  //     ],
+  //   },
+  //   include: {
+  //     _count: {
+  //       select: {
+  //         chapters: { where: { isPublished: true } },
+  //       },
+  //     },
+  //     chapters: {
+  //       select: { id: true },
+  //       where: { isPublished: true },
+  //       orderBy: { order: "asc" },
+  //     },
+  //     user: true,
+  //   },
+  //   skip,
+  //   take: pageSize,
+  // });
+
+  // const finalCourses = courses.map((course) => ({
+  //   ...course,
+  //   chapters: course._count.chapters,
+  //   chapterId: course.chapters[0]?.id,
+  // }));
+
+  // return finalCourses;
 };
 
 export const getTotalCourseProgress = async (courseId: string) => {

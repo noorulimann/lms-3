@@ -8,25 +8,28 @@ import { redirect } from "next/navigation";
 import React from "react";
 
 const layout = async ({ children }: { children: React.ReactNode }) => {
+  // For demo purposes, bypass authentication and set default values
   let isTeacher = false;
-  let visitedUser = false;
-  const { userId } = auth();
-  if (userId) {
-    const user = await prisma.user.findUnique({
-      where: {
-        authId: userId,
-      },
-    });
+  let visitedUser = true; // Set as visited user to bypass auth requirements
+  
+  // Remove authentication checks for demo
+  // const { userId } = auth();
+  // if (userId) {
+  //   const user = await prisma.user.findUnique({
+  //     where: {
+  //       authId: userId,
+  //     },
+  //   });
 
-    if (!user) redirect("/onboarding");
+  //   if (!user) redirect("/onboarding");
 
-    if (!user.onBoarded) redirect("/onboarding");
-    if (user.role === "TEACHER") {
-      isTeacher = true;
-    }
-  } else {
-    visitedUser = true;
-  }
+  //   if (!user.onBoarded) redirect("/onboarding");
+  //   if (user.role === "TEACHER") {
+  //     isTeacher = true;
+  //   }
+  // } else {
+  //   visitedUser = true;
+  // }
   return (
     <SidebarWraper visitedUser={visitedUser} isTeacher={isTeacher}>
       {children}
